@@ -3,9 +3,9 @@
 Turns raw IASI/METOP-C satellite ammonia (NH₃) retrievals into a clean,
 QC-filtered, regridded time series — and plots it over Europe.
 
-![Demo output](assets/demo_output.png)
-*(synthetic placeholder data — run the pipeline on real IASI files to
-reproduce this with actual NH₃ measurements)*
+![NH3 over Europe](outputs/plots/nh3_europe_mean.png)
+*(real output — mean NH3 total column over Europe from 3 sample days,
+2023-01-01 to 2023-01-03)*
 
 ## Background
 
