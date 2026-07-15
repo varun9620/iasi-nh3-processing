@@ -1,7 +1,7 @@
 """Load and validate the project YAML configuration."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
@@ -24,11 +24,20 @@ class RegionConfig:
 
 
 @dataclass
+class GridConfig:
+    lonmin: float
+    lonmax: float
+    latmin: float
+    latmax: float
+    resolution_deg: float = 0.1
+
+
+@dataclass
 class Config:
     base_dir: str
     file_pattern: str
     years: List[int]
-    grid_file: str
+    grid: GridConfig
     nc_file: str
     qc: QCConfig
     regions: Dict[str, RegionConfig]
@@ -55,7 +64,7 @@ class Config:
             base_dir=data["base_dir"],
             file_pattern=data["file_pattern"],
             years=data["years"],
-            grid_file=data["grid_file"],
+            grid=GridConfig(**data["grid"]),
             nc_file=output["nc_file"],
             qc=QCConfig(**qc_raw),
             regions=regions,
