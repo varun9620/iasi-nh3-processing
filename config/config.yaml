@@ -13,10 +13,14 @@ data:
   # missing dates are skipped and logged, so this can stay broad.
   years: [2023]
 
-  # .mat file with the target regular lat/lon grid (variables 'lat', 'lon')
-  # Not included in the repo (see data/README.md) - point this at your own copy,
-  # or leave as-is and add one under data/ before running.
-  grid_file: "data/12km.mat"
+  # Target regular lat/lon grid the swath data gets regridded onto.
+  # Generated on the fly - no external .mat file needed.
+  grid:
+    lonmin: -25
+    lonmax: 45
+    latmin: 34
+    latmax: 72
+    resolution_deg: 0.1   # ~11 km at these latitudes
 
 output:
   # Where the combined, gridded NetCDF file is written
