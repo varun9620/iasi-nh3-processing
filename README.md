@@ -63,8 +63,17 @@ this folder by default:
 data:
   base_dir: "data/METOP-C"
   file_pattern: "IASI_METOPC_L2_NH3_{date}_ULB-LATMOS_V4.0.0R.nc"
-  years: [2023]
-  grid_file: "data/12km.mat"   # add your own copy here (not included, see data/README.md)
+  dates: ["2023-01-01", "2023-01-02", "2023-01-03"]
+  years: [2023]          # fallback if `dates` isn't set
+
+  # Target regular lat/lon grid the swath data gets regridded onto,
+  # generated in code - no external .mat file needed.
+  grid:
+    lonmin: -25
+    lonmax: 45
+    latmin: 34
+    latmax: 72
+    resolution_deg: 0.1
 ```
 
 To use your own larger archive instead, just point `base_dir` at wherever
