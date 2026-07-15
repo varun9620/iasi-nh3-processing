@@ -3,8 +3,9 @@ Process daily IASI/METOP-C L2 NH3 files into one combined, gridded NetCDF file.
 
 This is a generalized, script-friendly version of the original notebook
 pipeline: it reads every daily L2 file it can find under `data.base_dir`,
-quality/cloud-filters it, regrids it onto the fixed lat/lon grid from
-`data.grid_file`, and appends it as one time step of the output NetCDF.
+quality/cloud-filters it, regrids it onto a regular lat/lon grid generated
+from `data.grid` in the config (no external .mat file needed), and appends
+it as one time step of the output NetCDF.
 
 Usage
 -----
@@ -18,13 +19,12 @@ import logging
 from datetime import date, timedelta
 from pathlib import Path
 
-import mat73
 import numpy as np
 import scipy.interpolate.ndgriddata as ndgriddata
 import xarray as xr
 from netCDF4 import Dataset, date2num
 
-from .config import Config
+from .config import Config, GridConfig
 from .functions import generate_masked_array, generate_xr_from_1D_vec
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -36,10 +36,19 @@ def daterange(start_date: date, end_date: date):
         yield start_date + timedelta(n)
 
 
-def load_target_grid(grid_file: str) -> tuple[np.ndarray, np.ndarray]:
-    """Load the target regular lat/lon grid from a .mat file (variables 'lat', 'lon')."""
-    mat = mat73.loadmat(grid_file)
-    return mat["lat"], mat["lon"]
+def build_target_grid(grid_cfg: GridConfig) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Build a regular lat/lon grid from the bounding box + resolution in the config.
+
+    Returns
+    -------
+    lat_1d, lon_1d : the 1D coordinate arrays (for the NetCDF dimensions)
+    lat_x, lon_x   : the 2D meshgrid arrays (as regridding targets)
+    """
+    lat_1d = np.arange(grid_cfg.latmin, grid_cfg.latmax + grid_cfg.resolution_deg, grid_cfg.resolution_deg)
+    lon_1d = np.arange(grid_cfg.lonmin, grid_cfg.lonmax + grid_cfg.resolution_deg, grid_cfg.resolution_deg)
+    lon_x, lat_x = np.meshgrid(lon_1d, lat_1d)
+    return lat_1d, lon_1d, lat_x, lon_x
 
 
 def process_one_day(data: xr.Dataset, cfg: Config, lat_x: np.ndarray, lon_x: np.ndarray) -> np.ndarray:
@@ -116,19 +125,17 @@ def process_one_day(data: xr.Dataset, cfg: Config, lat_x: np.ndarray, lon_x: np.
 
 
 def run(cfg: Config) -> Path:
-    lat_x, lon_x = load_target_grid(cfg.grid_file)
+    lat_1d, lon_1d, lat_x, lon_x = build_target_grid(cfg.grid)
 
     out_path = Path(cfg.nc_file)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    n_lat, n_lon = np.unique(lat_x).size, np.unique(lon_x).size
 
     ncfile = Dataset(out_path, mode="w", format="NETCDF4")
     ncfile.title = "IASI/METOP-C NH3 total column, QC-filtered and regridded"
     ncfile.subtitle = "IASI METOP-C V4r"
 
-    ncfile.createDimension("lat", n_lat)
-    ncfile.createDimension("lon", n_lon)
+    ncfile.createDimension("lat", lat_1d.size)
+    ncfile.createDimension("lon", lon_1d.size)
     ncfile.createDimension("time", None)
 
     lat_var = ncfile.createVariable("lat", np.float32, ("lat",))
@@ -147,8 +154,8 @@ def run(cfg: Config) -> Path:
     nh3_var.units = "molecules/cm^2 x 1e16"
     nh3_var.standard_name = "ammonia"
 
-    lat_var[:] = np.unique(lat_x)
-    lon_var[:] = np.unique(lon_x)
+    lat_var[:] = lat_1d
+    lon_var[:] = lon_1d
 
     n_ok, n_missing = 0, 0
     for year in cfg.years:
