@@ -10,8 +10,6 @@ venv/
 .ipynb_checkpoints/
 
 # Project data & outputs
-outputs/*.nc
-outputs/plots/*.png
 *.mat
 
 # OS / editor
