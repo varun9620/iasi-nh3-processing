@@ -71,7 +71,7 @@ def plot(cfg: Config, region_name: str | None = None, bbox: list[float] | None =
     out_dir.mkdir(parents=True, exist_ok=True)
     suffix = single_date if single_date else "mean"
     out_path = out_dir / f"nh3_{region_name or cfg.default_region}_{suffix}.png"
-    fig.savefig(out_path, dpi=200, bbox_inches="tight")
+    fig.savefig(out_path, dpi=200)
     plt.close(fig)
 
     ds.close()
