@@ -158,26 +158,32 @@ def run(cfg: Config) -> Path:
     lon_var[:] = lon_1d
 
     n_ok, n_missing = 0, 0
-    for year in cfg.years:
-        start_date = date(year, 1, 1)
-        end_date = date(year + 1, 1, 1)
-        for single_date in daterange(start_date, end_date):
-            file_path = cfg.file_path_for(single_date)
-            try:
-                data = xr.open_dataset(file_path)
-                gridded = process_one_day(data, cfg, lat_x, lon_x)
+    if cfg.dates:
+        dates_to_process = cfg.dates
+    else:
+        dates_to_process = [
+            single_date
+            for year in cfg.years
+            for single_date in daterange(date(year, 1, 1), date(year + 1, 1, 1))
+        ]
 
-                time_index = ncfile.dimensions["time"].size
-                single_datetime = dt.datetime(single_date.year, single_date.month, single_date.day)
-                time_var[time_index] = date2num(single_datetime, time_var.units)
-                nh3_var[time_index, :, :] = gridded
+    for single_date in dates_to_process:
+        file_path = cfg.file_path_for(single_date)
+        try:
+            data = xr.open_dataset(file_path)
+            gridded = process_one_day(data, cfg, lat_x, lon_x)
 
-                n_ok += 1
-                log.info("Processed %s", single_date)
-                data.close()
-            except Exception as exc:  # noqa: BLE001 - keep the batch going
-                n_missing += 1
-                log.warning("Skipping %s (%s): %s", single_date, file_path, exc)
+            time_index = ncfile.dimensions["time"].size
+            single_datetime = dt.datetime(single_date.year, single_date.month, single_date.day)
+            time_var[time_index] = date2num(single_datetime, time_var.units)
+            nh3_var[time_index, :, :] = gridded
+
+            n_ok += 1
+            log.info("Processed %s", single_date)
+            data.close()
+        except Exception as exc:  # noqa: BLE001 - keep the batch going
+            n_missing += 1
+            log.warning("Skipping %s (%s): %s", single_date, file_path, exc)
 
     ncfile.close()
     log.info("Done. %d days written, %d days missing/skipped.", n_ok, n_missing)
