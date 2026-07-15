@@ -9,8 +9,13 @@ data:
   # Filename pattern; {date} is substituted with YYYYMMDD
   file_pattern: "IASI_METOPC_L2_NH3_{date}_ULB-LATMOS_V4.0.0R.nc"
 
-  # Years to process (inclusive). Only dates with a matching file are used;
-  # missing dates are skipped and logged, so this can stay broad.
+  # Exact dates to process (YYYY-MM-DD). Takes priority over `years` below
+  # if present - use this when you only have specific sample days.
+  dates: ["2023-01-01", "2023-01-02", "2023-01-03"]
+
+  # Fallback: years to process (inclusive) if `dates` above is not set.
+  # Only dates with a matching file are used; missing dates are skipped
+  # and logged, so this can stay broad.
   years: [2023]
 
   # Target regular lat/lon grid the swath data gets regridded onto.
