@@ -5,5 +5,4 @@ netCDF4
 pandas
 matplotlib
 cartopy
-mat73
 PyYAML
