@@ -125,7 +125,6 @@ repository, MIT licensed.
   project. If you swap in your own larger archive, note that raw IASI
   files aren't included by default — see `data/README.md`.
 - The regridding target (a regular lat/lon grid over Europe) is generated
-  directly in code from `data.grid` in `config.yaml` — no external `.mat`
-  grid file is needed.
+  directly in code from `data.grid` in `config.yaml`.
 - `iasi_nh3/functions.py` adapts a couple of helper functions from
   EUMETSAT's LTPy training materials (MIT licensed) — see `LICENSE`.
