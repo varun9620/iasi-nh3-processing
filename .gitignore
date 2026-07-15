@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Project data & outputs
+outputs/*.nc
+outputs/plots/*.png
+*.mat
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

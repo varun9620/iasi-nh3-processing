@@ -1,0 +1,43 @@
+# iasi-nh3-processing configuration
+#
+# Adjust these paths to match your machine before running anything.
+
+data:
+  # Root folder holding one sub-folder per year, e.g. data/METOP-C/2023/...
+  base_dir: "data/METOP-C"
+
+  # Filename pattern; {date} is substituted with YYYYMMDD
+  file_pattern: "IASI_METOPC_L2_NH3_{date}_ULB-LATMOS_V4.0.0R.nc"
+
+  # Years to process (inclusive). Only dates with a matching file are used;
+  # missing dates are skipped and logged, so this can stay broad.
+  years: [2023]
+
+  # .mat file with the target regular lat/lon grid (variables 'lat', 'lon')
+  # Not included in the repo (see data/README.md) - point this at your own copy,
+  # or leave as-is and add one under data/ before running.
+  grid_file: "data/12km.mat"
+
+output:
+  # Where the combined, gridded NetCDF file is written
+  nc_file: "outputs/IASI_METOPC_NH3_2019_2023.nc"
+
+qc:
+  quality_flag_threshold: 1     # keep postfilter == 1
+  daytime_flag_threshold: 0     # keep AMPM == 0 (daytime)
+  cloud_cover_threshold: 0.25   # keep cloud_coverage < 0.25
+
+plot:
+  region: europe
+  output_dir: outputs/plots
+  regions:
+    europe:
+      lonmin: -25
+      lonmax: 45
+      latmin: 34
+      latmax: 72
+    global:
+      lonmin: -180
+      lonmax: 180
+      latmin: -90
+      latmax: 90
