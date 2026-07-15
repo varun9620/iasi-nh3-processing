@@ -121,7 +121,11 @@ repository, MIT licensed.
 
 ## Notes
 
-- Raw IASI files and the `.mat` grid file aren't included (`.gitignore`) —
-  they're large and machine-specific.
+- The 3 sample IASI files are included in `data/METOP-C/2023/` for this
+  project. If you swap in your own larger archive, note that raw IASI
+  files aren't included by default — see `data/README.md`.
+- The regridding target (a regular lat/lon grid over Europe) is generated
+  directly in code from `data.grid` in `config.yaml` — no external `.mat`
+  grid file is needed.
 - `iasi_nh3/functions.py` adapts a couple of helper functions from
   EUMETSAT's LTPy training materials (MIT licensed) — see `LICENSE`.
