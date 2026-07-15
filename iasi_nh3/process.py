@@ -120,7 +120,6 @@ def process_one_day(data: xr.Dataset, cfg: Config, lat_x: np.ndarray, lon_x: np.
     latitude = nh3_cloud_masked.latitude.data
 
     gridded = ndgriddata.griddata((longitude, latitude), values, (lon_x, lat_x), method="nearest")
-    gridded = np.flipud(np.rot90(gridded, k=1))
     return gridded
 
 
