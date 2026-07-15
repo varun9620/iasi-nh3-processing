@@ -1,9 +1,10 @@
 """Load and validate the project YAML configuration."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import date as date_type
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import yaml
 
@@ -43,6 +44,7 @@ class Config:
     regions: Dict[str, RegionConfig]
     plot_output_dir: str
     default_region: str = "europe"
+    dates: Optional[List[date_type]] = None
 
     @classmethod
     def load(cls, path: str | Path) -> "Config":
@@ -60,16 +62,22 @@ class Config:
             for name, bounds in plot_raw.get("regions", {}).items()
         }
 
+        dates_raw = data.get("dates")
+        dates = None
+        if dates_raw:
+            dates = [date_type.fromisoformat(str(d)) for d in dates_raw]
+
         return cls(
             base_dir=data["base_dir"],
             file_pattern=data["file_pattern"],
-            years=data["years"],
+            years=data.get("years", []),
             grid=GridConfig(**data["grid"]),
             nc_file=output["nc_file"],
             qc=QCConfig(**qc_raw),
             regions=regions,
             plot_output_dir=plot_raw.get("output_dir", "outputs/plots"),
             default_region=plot_raw.get("region", "europe"),
+            dates=dates,
         )
 
     def file_path_for(self, single_date) -> Path:
